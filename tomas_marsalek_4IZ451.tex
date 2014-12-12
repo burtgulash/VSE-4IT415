@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+
+\graphicspath{{pics/}}
+
+\DeclareUnicodeCharacter{00A0}{ }
+
+
+\title{Funkce repository návrhu systému a důvody pro její existenci. \\ 4IT415 Informační modelování organizací (ZS 2014-2015)}
+\author{Tomáš Maršálek}
+\date{\today}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\clearpage
+
+\section{Úvod}
+Repository pattern je návrhový vzor s účelem logického oddělení perzistenční
+vrstvy systému od aplikační. Do systému přináší nízkou provázanost (loose
+coupling), což je obecně považováno jako dobrá vlastnost při návrhu. Nízká
+provázanost umožňuje nahrazení části s minimálním zásahem do jiných částí
+systému. Proč bychom ale v první řadě uvažovali o nahrazování perzistenční
+vrstvy?
+
+Prvním důvodem může být nahrazení implementace úložiště. Repository nám dává
+možnost snadné migrace mezi různými databázemi. Nebo pokud chceme nahradit
+pouze část úložiště, např. když chceme ukládat obrázky do souborů a ne přímo do
+databáze, aplikační kód se o téhle změně vůbec nemusí dozvědět, protože k
+obrázkům přistupuje pouze definovaných metod rozhraní repozitáře.
+
+Změna implementace úložiště je ale většinou uváděna pouze jako ilustrativní
+využití repository, protože ke změnám implementace v produkčním systému dochází
+zřídkakdy. Většinou existuje datová základna a aplikace se podle ní
+přizpůsobují než naopak.
+
+Dalším, a to podstatnějším, důvodem je možnost používat unit testy pro
+aplikační kód, který je provázaný perzistenčním kódem, a ne jen integrační
+testy, které testují aplikaci jako celek. Repository nám totiž umožňuje
+vytvořit takzvanou Mock implementaci perzistenčního rozhraní, díky které je
+možné jednoduše vytvořit sadu deterministických unit testů. Unit testy se
+skutečnou databází jsou velmi krkolomné, protože před každým testem je třeba
+testovací databázi vyprázdnit a deterministicky naplnit daty potřebnými pro
+konkrétní unit test.
+
+Repository pattern není často oblíbený, protože není flexibilní. Rozhraní
+repository pak může obsahovat metodu pro každou permutaci získání objektu
+(např. getUserById, getUserByName, getUsersWithDetails,
+getUsersWithDetailsAndFavouriteColorByAddress). Tento problém spadá do většího
+problému zvaného object-relational impedance mismatch, který ve zkratce
+znamená, že je velmi obtížné přesně namapovat objekty z OO světa do relačního
+modelu. Doposud nikdo nepřišel s řešením, které by bylo vhodné pro všechny
+případy a stále by mělo vlastnosti nízkého provázání perzistenční a aplikační
+vrstvy. Problém dostal přezdívku \uv{Vietnam of Computer Science} v analogii s
+Vietnamskou válkou, do které se dlouhé roky investovaly neuvěřitelné peníze a
+výsledek nikde. 
+
+Repository je jedním z řešení tohoto problému s vlastností nizkého provázání,
+avšak za cenu velmi složitého rozhraní, jak bylo zmíněno výše. Jediným uváděným
+řešením jak se zbavit O/R mapování je odstranit z názvu \uv{O} nebo \uv{R},
+tedy nepoužívat objekty v aplikaci, anebo nepoužívat relační databazi, ale
+například objektovou nebo grafovou NoSQL. Dalšími navrhovanými řešeními jsou
+experimentální Event Sourcing (Akka persistence ve Scale, acid-state v
+Haskellu),
+
+Řešení, které se v poslední době s rozšířením architektury MVC pro webové
+aplikace stalo populární, je takzvané ORM - Object Relational Mapper, neboli
+nástroj, který provede konverzi dat z tabulek relační databáze do grafové
+reprezentace objektů v objektově orientovaném programování. Vývojář se nesetká
+s neduhy jako u repository, kde musel vytvořit každou permutaci databázového
+dotazu, ale tvoří databázové dotazy přímo v kódu podle potřeby. Nevytváří je
+ale v jazyku závislém na implementaci databáze, ale v konstrukcích nezávislých
+na implementaci. Alespoň tohle byl původní záměr a bohužel skutečnost je jiná.
+ORM přináší pouze výhodu v tom, že se v aplikační vrstvě nemusí používat přímo
+databázový dotazovací jazyk, ale jeho varianta, která odpovídá konstrukcím
+programovacího jazyka aplikační vrstvy. Nedocílíme nízkého provázání, nelze
+vytvářet Mocky (implementace ORM nástrojů je hutná a vytvořit mock, který by
+splňoval jejich rozhraní je velmi obtížné)
+
+\section{Návrh API}
+\section{Caching}
+\section{CQRS}
+
+
+\bibliographystyle{csplainnat}
+\bibliography{ref}
+
+\end{document}
