@@ -1,21 +1,35 @@
 \documentclass[10pt]{article}
 \usepackage[utf8]{inputenc}
- \usepackage[czech,english]{babel}
+\usepackage[czech]{babel}
 \usepackage{a4wide}
-% \usepackage[numbers]{natbib}
-%\usepackage{czech}
+\usepackage[numbers]{natbib}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage[bottom=2.5cm]{geometry}
 
 
-
-\title{Funkce repository návrhu systému a důvody pro její existenci. \\ 4IT415 Informační modelování organizací (ZS 2014-2015)}
-\author{Tomáš Maršálek}
-\date{\today}
 
 \begin{document}
-\maketitle
-\thispagestyle{empty}
-\clearpage
 \pagenumbering{gobble}
+\thispagestyle{empty}
+\begin{center}
+    \Large
+    \textbf{Funkce repository návrhu systému a důvody pro její existenci}
+
+    \vspace{.1cm}
+    4IT415 Informační modelování organizací
+
+    ZS 2014-2015
+
+    \vspace{.6cm}
+    \large
+    \textbf{Tomáš Maršálek}
+
+    \today
+
+    \vspace{1cm}
+\end{center}
+
+
 
 Repository pattern je návrhový vzor s účelem logického oddělení perzistenční
 vrstvy systému od aplikační. Do systému přináší nízkou provázanost (loose
@@ -31,18 +45,18 @@ databáze, aplikační kód se o téhle změně vůbec nemusí dozvědět, proto
 obrázkům přistupuje pouze definovaných metod rozhraní repozitáře.
 
 Změna implementace úložiště je ale většinou uváděna pouze jako ilustrativní
-využití repository, protože ke změnám implementace v produkčním systému dochází
-zřídkakdy. Většinou existuje datová základna a aplikace se podle ní
-přizpůsobují než naopak.
+využití repository~\cite{so_repository}, protože ke změnám implementace v
+produkčním systému dochází zřídkakdy. Většinou existuje datová základna a
+aplikace se podle ní přizpůsobují než naopak.
 
 Dalším, a to podstatnějším, důvodem je možnost používat unit testy pro
 aplikační kód, který je provázaný perzistenčním kódem, a ne jen integrační
 testy, které testují aplikaci jako celek. Repository nám totiž umožňuje
-vytvořit takzvanou Mock implementaci perzistenčního rozhraní, díky které je
-možné jednoduše vytvořit sadu deterministických unit testů. Unit testy se
-skutečnou databází jsou velmi krkolomné, protože před každým testem je třeba
-testovací databázi vyprázdnit a deterministicky naplnit daty potřebnými pro
-konkrétní unit test.
+vytvořit takzvanou Mock~\cite{so_repository} implementaci perzistenčního
+rozhraní, díky které je možné jednoduše vytvořit sadu deterministických unit
+testů. Unit testy se skutečnou databází jsou velmi krkolomné, protože před
+každým testem je třeba testovací databázi vyprázdnit a deterministicky naplnit
+daty potřebnými pro konkrétní unit test.
 
 Velkou výhodou oddělení perzistence od aplikace je cachování v paměti, o kterém
 aplikace nemusí vůbec vědět, protože se vše děje na pozadí v perzistenční
@@ -54,13 +68,14 @@ Repository pattern není často oblíbený, protože není flexibilní. Rozhran�
 repository pak může obsahovat metodu pro každou permutaci získání objektu
 (např. getUserById, getUserByName, getUsersWithDetails,
 getUsersWithDetailsAndFavouriteColorByAddress). Tento problém spadá do většího
-problému zvaného object-relational impedance mismatch, který ve zkratce
-znamená, že je velmi obtížné přesně namapovat objekty z OO světa do relačního
-modelu. Doposud nikdo nepřišel s řešením, které by bylo vhodné pro všechny
-případy a stále by mělo vlastnosti nízkého provázání perzistenční a aplikační
-vrstvy. Problém dostal přezdívku \uv{Vietnam of Computer Science} v analogii s
-Vietnamskou válkou, do které se dlouhé roky investovaly neuvěřitelné peníze a
-výsledek nikde. 
+problému zvaného object-relational impedance
+mismatch~\cite{hibernate_mismatch}\cite{so_mismatch}\cite{ormhate}, který ve
+zkratce znamená, že je velmi obtížné přesně namapovat objekty z OO světa do
+relačního modelu. Doposud nikdo nepřišel s řešením, které by bylo vhodné pro
+všechny případy a stále by mělo vlastnosti nízkého provázání perzistenční a
+aplikační vrstvy. Problém dostal přezdívku \uv{Vietnam of Computer
+Science}~\cite{ormhate}\cite{horror_vietnam} v analogii s Vietnamskou válkou,
+do které se dlouhé roky investovaly neuvěřitelné peníze a výsledek nikde. 
 
 Repository je jedním z řešení tohoto problému s vlastností nizkého provázání,
 avšak za cenu velmi složitého rozhraní, jak bylo zmíněno výše. Jediným uváděným
@@ -89,25 +104,24 @@ přistupovat přímo do perzistenční.
 Každé řešení má své výhody a nevýhody a proto nachází uplatnění na jiných
 pozicích.  ORM získalo v poslední době ve webových frameworcích místo mezi
 aplikací a perzistencí i přes veliký tábor jeho odpůrců. Repository pattern se
-často využívá při návrhu API, který v poslední době silně konverguje k jednomu
-řešení - REST (Representational state transfer pro protokol HTTP).
-
-Praktické rady při použití repository patternu. 
+často využívá při návrhu API, který v poslední době silně konverguje k
+dominantnímu řešení - REST (Representational state transfer pro protokol HTTP).
 
 Přestože je repository pattern velmi neflexibilní s přibývajicími požadavky na
 variaci dotazů na data, můžeme alespoň částečně přidat flexibilitu dotazu, aniž
 bychom narušili únik abstrakce skrze vrstvy nebo volné provázání. Rozhraní
-repozitáře by mělo být schopné alespoň stránkovat a řadit výsledky.
+repozitáře by mělo být schopné alespoň stránkovat a řadit
+výsledky~\cite{repository_done_right}\cite{so_jgauffin}.
 
-Jiným návrhem pro návrh repository je takzvané CQRS (Command Query
+Jiným návrhem pro design repository je takzvané CQRS~\cite{CQRS} (Command Query
 Responsibility Segregation), které jednoduše odděluje zápisy do perzistence a
 čtení do oddělených komponent. To umožňuje použít dva ruzné oddělené objektové
 modely nebo náhledy na stejná data, které jsou vhodnější pro čtení nebo zápis
 než jednotný model. Výhodou nízkého provázání čtení a zápisu je flexibilita při
 nasazení aplikace na distribuovaný systém - např. čtecí repositář může
-obsluhovat 10 výpočetních jednotek a pro zápis můžou být pouze 2.
+obsluhovat deset výpočetních jednotek a pro zápis můžou být pouze dvě.
 
-Cílem eseje bylo přiblížit účel repository patternu, jeho výhody a nevýhody a
+Mým cílem bylo přiblížit účel repository patternu, jeho výhody a nevýhody a
 porovnání s ostatními řešeními problému objektově relačního mapování. Dále jsem
 zmínil postavení repository patternu v dnešní době ve skutečných aplikacích a
 rady, které vývojová komunita po letech praxe nalezla. Esej se dotýká širokého
@@ -116,7 +130,7 @@ problematiky doporučuji detailnější literaturu, která je většinou ve form
 blogových příspěvků a zejména diskusí pod nimi.
 
 
-% \bibliographystyle{csplainnat}
-% \bibliography{ref}
+\bibliographystyle{csplainnat}
+\bibliography{ref}
 
 \end{document}
